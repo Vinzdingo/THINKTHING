@@ -1,1 +1,506 @@
+<!DOCTYPE html>
 
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Læg Bets - Bet uden afhængighed</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Inter,sans-serif;
+}
+
+body{
+background:#050505;
+color:white;
+min-height:100vh;
+}
+
+nav{
+position:sticky;
+top:0;
+height:80px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:0 40px;
+background:rgba(5,5,5,.95);
+backdrop-filter:blur(20px);
+border-bottom:1px solid rgba(255,255,255,.05);
+z-index:100;
+}
+
+.logo{
+font-size:24px;
+font-weight:700;
+}
+
+.logo span{
+color:#dc2626;
+}
+
+.menu{
+display:flex;
+gap:20px;
+}
+
+.menu a{
+color:white;
+text-decoration:none;
+opacity:.8;
+}
+
+.menu a:hover{
+color:#dc2626;
+}
+
+.points{
+background:#111;
+padding:12px 18px;
+border-radius:12px;
+border:1px solid #222;
+}
+
+.container{
+max-width:1200px;
+margin:40px auto;
+padding:20px;
+}
+
+.title{
+font-size:42px;
+margin-bottom:10px;
+}
+
+.subtitle{
+color:#9ca3af;
+margin-bottom:40px;
+}
+
+.matches{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(350px,1fr));
+gap:20px;
+}
+
+.match{
+background:#111;
+border:1px solid #222;
+border-radius:22px;
+padding:25px;
+transition:.3s;
+}
+
+.match:hover{
+border-color:#dc2626;
+}
+
+.teams{
+font-size:22px;
+font-weight:700;
+margin-bottom:10px;
+}
+
+.time{
+color:#9ca3af;
+margin-bottom:20px;
+}
+
+.odds{
+display:grid;
+grid-template-columns:1fr 1fr 1fr;
+gap:10px;
+}
+
+.odds button{
+padding:14px;
+border:none;
+border-radius:12px;
+background:#dc2626;
+color:white;
+font-weight:700;
+cursor:pointer;
+transition:.3s;
+}
+
+.odds button:hover{
+background:#ef4444;
+transform:translateY(-2px);
+}
+
+.popup{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.75);
+display:none;
+justify-content:center;
+align-items:center;
+z-index:999;
+}
+
+.popup-content{
+width:90%;
+max-width:420px;
+background:#111;
+padding:30px;
+border-radius:24px;
+border:1px solid #222;
+}
+
+.popup-content h2{
+margin-bottom:15px;
+}
+
+.popup-content p{
+margin-bottom:20px;
+color:#9ca3af;
+}
+
+.popup-content input{
+width:100%;
+padding:14px;
+border:none;
+background:#1a1a1a;
+color:white;
+border-radius:12px;
+margin-bottom:20px;
+}
+
+.popup-buttons{
+display:flex;
+gap:10px;
+}
+
+.popup-buttons button{
+flex:1;
+padding:14px;
+border:none;
+border-radius:12px;
+cursor:pointer;
+font-weight:700;
+}
+
+.confirm{
+background:#dc2626;
+color:white;
+}
+
+.cancel{
+background:#1a1a1a;
+color:white;
+}
+
+.toast{
+position:fixed;
+bottom:25px;
+right:25px;
+background:#16a34a;
+padding:15px 20px;
+border-radius:12px;
+display:none;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<nav>
+
+<div class="logo">
+Bet <span>uden afhængighed</span>
+</div>
+
+<div class="menu">
+<a href="index.html">Forside</a>
+<a href="mybets.html">Mine Bets</a>
+<a href="leaderboard.html">Leaderboard</a>
+<a href="profile.html">Profil</a>
+</div>
+
+<div class="points" id="points">
+1000 Point
+</div>
+
+</nav>
+
+<div class="container">
+
+<h1 class="title">Læg Bets</h1>
+<p class="subtitle">
+Vælg en kamp og sats dine point.
+</p>
+
+<div class="matches" id="matches"></div>
+
+</div>
+
+<div class="popup" id="popup">
+
+<div class="popup-content">
+
+<h2 id="popupTitle">Bet</h2>
+
+<p id="popupOdds"></p>
+
+<input
+type="number"
+id="stake"
+placeholder="Hvor mange point?"
+min="1">
+
+<div class="popup-buttons">
+<button class="confirm" onclick="confirmBet()">
+Placér Bet
+</button>
+
+<button class="cancel" onclick="closePopup()">
+Annuller
+</button>
+</div>
+
+</div>
+
+</div>
+
+<div class="toast" id="toast">
+Bet placeret ✔
+</div>
+
+<script>
+
+if(!localStorage.getItem("points")){
+localStorage.setItem("points",1000);
+}
+
+if(!localStorage.getItem("bets")){
+localStorage.setItem("bets",JSON.stringify([]));
+}
+
+let points =
+Number(localStorage.getItem("points"));
+
+let currentBet = null;
+
+const matches = [
+
+{
+home:"🇪🇸 Spanien",
+away:"🇫🇷 Frankrig",
+date:"15. juni",
+homeOdds:2.10,
+drawOdds:3.20,
+awayOdds:3.50
+},
+
+{
+home:"🇩🇰 Danmark",
+away:"🇧🇷 Brasilien",
+date:"18. juni",
+homeOdds:4.50,
+drawOdds:3.80,
+awayOdds:1.70
+},
+
+{
+home:"🇦🇷 Argentina",
+away:"🏴 England",
+date:"20. juni",
+homeOdds:2.60,
+drawOdds:3.10,
+awayOdds:2.70
+},
+
+{
+home:"🇩🇪 Tyskland",
+away:"🇵🇹 Portugal",
+date:"23. juni",
+homeOdds:2.30,
+drawOdds:3.40,
+awayOdds:3.10
+}
+
+];
+
+function updatePoints(){
+
+document.getElementById("points")
+.innerText = points + " Point";
+
+}
+
+updatePoints();
+
+function renderMatches(){
+
+const container =
+document.getElementById("matches");
+
+matches.forEach(match=>{
+
+container.innerHTML += `
+
+<div class="match">
+
+<div class="teams">
+${match.home}
+vs
+${match.away}
+</div>
+
+<div class="time">
+${match.date}
+</div>
+
+<div class="odds">
+
+<button onclick="openBet(
+'${match.home}',
+${match.homeOdds}
+)">
+${match.homeOdds}
+</button>
+
+<button onclick="openBet(
+'Uafgjort',
+${match.drawOdds}
+)">
+${match.drawOdds}
+</button>
+
+<button onclick="openBet(
+'${match.away}',
+${match.awayOdds}
+)">
+${match.awayOdds}
+</button>
+
+</div>
+
+</div>
+
+`;
+
+});
+
+}
+
+renderMatches();
+
+function openBet(team,odds){
+
+currentBet = {
+team,
+odds
+};
+
+document.getElementById("popup")
+.style.display = "flex";
+
+document.getElementById("popupTitle")
+.innerText = team;
+
+document.getElementById("popupOdds")
+.innerText =
+"Odds: " + odds;
+
+}
+
+function closePopup(){
+
+document.getElementById("popup")
+.style.display = "none";
+
+}
+
+function confirmBet(){
+
+let stake =
+Number(
+document.getElementById("stake").value
+);
+
+if(!stake){
+alert("Indtast point");
+return;
+}
+
+if(stake > points){
+alert("Ikke nok point");
+return;
+}
+
+points -= stake;
+
+localStorage.setItem(
+"points",
+points
+);
+
+let bets =
+JSON.parse(
+localStorage.getItem("bets")
+);
+
+bets.push({
+
+id:Date.now(),
+
+team:currentBet.team,
+
+odds:currentBet.odds,
+
+stake:stake,
+
+potential:
+Math.round(
+stake * currentBet.odds
+),
+
+status:"pending",
+
+created:
+new Date()
+.toLocaleString()
+
+});
+
+localStorage.setItem(
+"bets",
+JSON.stringify(bets)
+);
+
+updatePoints();
+
+closePopup();
+
+showToast();
+
+}
+
+function showToast(){
+
+const toast =
+document.getElementById("toast");
+
+toast.style.display = "block";
+
+setTimeout(()=>{
+
+toast.style.display = "none";
+
+},2000);
+
+}
+
+</script>
+
+</body>
+</html>
