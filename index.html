@@ -2,9 +2,11 @@
 
 <html lang="da">
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VM Predictor</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>Bet uden afhængighed</title>
 
 <style>
 
@@ -12,107 +14,146 @@
 margin:0;
 padding:0;
 box-sizing:border-box;
-font-family:Arial,sans-serif;
+font-family:Inter,sans-serif;
 }
 
 body{
-background:#0f172a;
+background:#050505;
 color:white;
+overflow-x:hidden;
 }
 
-header{
-background:#111827;
-padding:20px;
+nav{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:80px;
 display:flex;
 justify-content:space-between;
 align-items:center;
-border-bottom:1px solid #1f2937;
-position:sticky;
-top:0;
+padding:0 50px;
+background:rgba(5,5,5,.9);
+backdrop-filter:blur(20px);
+border-bottom:1px solid rgba(255,255,255,.05);
+z-index:100;
 }
 
 .logo{
-font-size:28px;
-font-weight:bold;
-}
-
-.balance{
-background:#16a34a;
-padding:10px 15px;
-border-radius:12px;
-font-weight:bold;
-}
-
-.container{
-max-width:1200px;
-margin:auto;
-padding:25px;
-}
-
-.section-title{
-margin-bottom:20px;
 font-size:24px;
+font-weight:700;
+letter-spacing:1px;
 }
 
-.match{
-background:#1e293b;
-padding:25px;
-border-radius:18px;
-margin-bottom:20px;
+.logo span{
+color:#dc2626;
 }
 
-.teams{
-font-size:24px;
-font-weight:bold;
-margin-bottom:15px;
-}
-
-.time{
-color:#94a3b8;
-margin-bottom:20px;
-}
-
-.odds{
+.menu{
 display:flex;
-gap:10px;
+gap:20px;
+}
+
+.menu a{
+color:white;
+text-decoration:none;
+opacity:.8;
+transition:.3s;
+}
+
+.menu a:hover{
+opacity:1;
+color:#dc2626;
+}
+
+.hero{
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+text-align:center;
+padding:40px;
+}
+
+.hero-content{
+max-width:900px;
+}
+
+.hero h1{
+font-size:90px;
+line-height:1;
+margin-bottom:20px;
+}
+
+.hero h1 span{
+color:#dc2626;
+}
+
+.hero p{
+font-size:22px;
+color:#9ca3af;
+max-width:700px;
+margin:auto;
+line-height:1.7;
+}
+
+.cta{
+margin-top:40px;
+}
+
+.btn{
+padding:18px 40px;
+background:#dc2626;
+border:none;
+color:white;
+font-size:18px;
+border-radius:16px;
+cursor:pointer;
+transition:.3s;
+}
+
+.btn:hover{
+transform:translateY(-3px);
+background:#ef4444;
+}
+
+.glow{
+position:absolute;
+width:500px;
+height:500px;
+background:#dc2626;
+filter:blur(250px);
+opacity:.15;
+top:20%;
+left:50%;
+transform:translateX(-50%);
+pointer-events:none;
+}
+
+.stats{
+display:flex;
+justify-content:center;
+gap:30px;
+margin-top:60px;
 flex-wrap:wrap;
 }
 
-.odds button{
-flex:1;
-padding:14px;
-border:none;
-border-radius:12px;
-cursor:pointer;
-background:#2563eb;
-color:white;
-font-size:18px;
-font-weight:bold;
+.stat{
+background:#111;
+padding:25px;
+border-radius:20px;
+min-width:220px;
+border:1px solid rgba(255,255,255,.05);
 }
 
-.odds button:hover{
-opacity:.9;
+.stat h3{
+font-size:30px;
+margin-bottom:8px;
 }
 
-.nav{
-display:flex;
-gap:15px;
-}
-
-.nav a{
-color:white;
-text-decoration:none;
-}
-
-.popup{
-position:fixed;
-bottom:20px;
-right:20px;
-background:#16a34a;
-padding:15px;
-border-radius:12px;
-display:none;
-font-weight:bold;
+.stat p{
+font-size:14px;
+color:#9ca3af;
 }
 
 </style>
@@ -121,261 +162,66 @@ font-weight:bold;
 
 <body>
 
-<header>
+<div class="glow"></div>
+
+<nav>
 
 <div class="logo">
-⚽ VM Predictor
+Bet <span>uden afhængighed</span>
 </div>
 
-<div class="nav">
-<a href="index.html">Kampe</a>
+<div class="menu">
+<a href="bets.html">Læg Bets</a>
 <a href="mybets.html">Mine Bets</a>
+<a href="leaderboard.html">Leaderboard</a>
+<a href="profile.html">Profil</a>
 </div>
 
-<div class="balance" id="balance">
-1000 Point
-</div>
+</nav>
 
-</header>
+<section class="hero">
 
-<div class="container">
+<div class="hero-content">
 
-<h2 class="section-title">
-🔥 VM Kampe
-</h2>
+<h1>
+Bet uden <span>afhængighed</span>
+</h1>
 
-<div id="matches"></div>
+<p>
+Forudsig VM-kampe, konkurrér mod venner
+og byg din egen pointsaldo.
+Ingen rigtige penge.
+Kun strategi, fodbold og konkurrencer.
+</p>
 
-</div>
-
-<div class="popup" id="popup">
-Bet placeret ✔
-</div>
-
-<script>
-
-const matches = [
-
-{
-id:1,
-home:"🇪🇸 Spanien",
-away:"🇫🇷 Frankrig",
-odds:{
-home:2.10,
-draw:3.20,
-away:3.50
-}
-},
-
-{
-id:2,
-home:"🇩🇰 Danmark",
-away:"🇧🇷 Brasilien",
-odds:{
-home:4.50,
-draw:3.80,
-away:1.70
-}
-},
-
-{
-id:3,
-home:"🇦🇷 Argentina",
-away:"🏴 England",
-odds:{
-home:2.60,
-draw:3.10,
-away:2.70
-}
-},
-
-{
-id:4,
-home:"🇩🇪 Tyskland",
-away:"🇵🇹 Portugal",
-odds:{
-home:2.20,
-draw:3.40,
-away:3.10
-}
-}
-
-];
-
-let points =
-Number(localStorage.getItem("points"));
-
-if(!points){
-points = 1000;
-localStorage.setItem("points",1000);
-}
-
-updateBalance();
-
-function updateBalance(){
-
-document.getElementById("balance").innerText =
-points + " Point";
-
-}
-
-function getBets(){
-
-return JSON.parse(
-localStorage.getItem("bets")
-) || [];
-
-}
-
-function saveBets(bets){
-
-localStorage.setItem(
-"bets",
-JSON.stringify(bets)
-);
-
-}
-
-function placeBet(matchId,team,odds){
-
-let stake =
-Number(prompt("Hvor mange point vil du satse?"));
-
-if(!stake) return;
-
-if(stake > points){
-
-alert("Ikke nok point");
-
-return;
-
-}
-
-points -= stake;
-
-localStorage.setItem(
-"points",
-points
-);
-
-updateBalance();
-
-let bets = getBets();
-
-bets.push({
-
-id:Date.now(),
-
-matchId,
-
-team,
-
-stake,
-
-odds,
-
-potentialWin:
-Math.round(stake * odds),
-
-status:"pending",
-
-date:new Date().toLocaleString()
-
-});
-
-saveBets(bets);
-
-showPopup();
-
-}
-
-function showPopup(){
-
-const p =
-document.getElementById("popup");
-
-p.style.display="block";
-
-setTimeout(()=>{
-
-p.style.display="none";
-
-},2000);
-
-}
-
-function renderMatches(){
-
-const container =
-document.getElementById("matches");
-
-container.innerHTML="";
-
-matches.forEach(match=>{
-
-container.innerHTML += `
-
-<div class="match">
-
-<div class="teams">
-
-${match.home}
-vs
-${match.away}
-
-</div>
-
-<div class="time">
-
-VM 2026
-
-</div>
-
-<div class="odds">
-
-<button onclick="placeBet(
-${match.id},
-'${match.home}',
-${match.odds.home}
-)">
-${match.home}
-<br>
-${match.odds.home}
+<div class="cta">
+<button class="btn">
+Kom i gang
 </button>
+</div>
 
-<button onclick="placeBet(
-${match.id},
-'Uafgjort',
-${match.odds.draw}
-)">
-Uafgjort
-<br>
-${match.odds.draw}
-</button>
+<div class="stats">
 
-<button onclick="placeBet(
-${match.id},
-'${match.away}',
-${match.odds.away}
-)">
-${match.away}
-<br>
-${match.odds.away}
-</button>
+<div class="stat">
+<h3>1000</h3>
+<p>Startpoint</p>
+</div>
 
+<div class="stat">
+<h3>64</h3>
+<p>VM kampe</p>
+</div>
+
+<div class="stat">
+<h3>∞</h3>
+<p>Muligheder</p>
 </div>
 
 </div>
 
-`;
+</div>
 
-});
-
-}
-
-renderMatches();
-
-</script>
+</section>
 
 </body>
 </html>
