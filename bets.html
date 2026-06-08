@@ -5,180 +5,134 @@
 <title>Bets</title>
 
 <style>
-body{margin:0;background:#050505;color:white;font-family:Arial}
-
-nav{
-position:fixed;
-top:0;
-width:100%;
-height:70px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:0 25px;
-background:#0a0a0a;
-border-bottom:1px solid #222;
+:root{
+--bg:#0b0b0b;--panel:#121212;--border:#232323;
+--red:#dc2626;--text:#fff;--muted:#9ca3af;
 }
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial;}
+body{background:var(--bg);color:var(--text);}
 
-.menu a{
-color:#aaa;
-margin-left:15px;
-text-decoration:none;
-}
+.topbar{position:fixed;top:0;left:0;right:0;height:60px;
+display:flex;justify-content:space-between;align-items:center;
+padding:0 20px;background:#111;border-bottom:1px solid var(--border);}
 
-.menu a:hover{color:#dc2626}
+.sidebar{position:fixed;top:60px;left:0;width:200px;height:calc(100vh - 60px);
+background:#0f0f0f;border-right:1px solid var(--border);padding:15px;}
 
-.container{
-margin-top:100px;
-padding:20px;
-max-width:1000px;
-margin-left:auto;
-margin-right:auto;
-}
+.sidebar a{display:block;color:var(--muted);text-decoration:none;padding:10px;border-radius:8px;margin-bottom:6px;}
+.sidebar a:hover{background:#1a1a1a;color:white;}
 
-.card{
-background:#111;
-border:1px solid #222;
-padding:18px;
-border-radius:14px;
-margin-bottom:15px;
-}
+.main{margin-left:200px;margin-top:60px;padding:20px;}
 
-button{
-background:#dc2626;
-border:none;
-padding:10px 14px;
-color:white;
-border-radius:10px;
-margin:5px;
-cursor:pointer;
-}
+.card{background:var(--panel);border:1px solid var(--border);padding:15px;border-radius:10px;margin-bottom:12px;}
 
-button:hover{background:#ef4444}
+button{background:var(--red);border:none;color:white;padding:10px 12px;border-radius:8px;cursor:pointer;}
+button:hover{background:#ef4444;}
 
-.small{color:#9ca3af;font-size:13px}
-.live{color:#22c55e}
+.small{color:var(--muted);font-size:13px}
+
+.odds{display:flex;gap:8px;margin-top:10px;}
+.odds button{background:#222;border:1px solid #333;}
+.odds button:hover{background:var(--red);}
 </style>
 </head>
 
 <body>
 
-<nav>
-<div>⚽ Bets</div>
+<div class="topbar">
+<div>Bets</div>
+<div id="points"></div>
+</div>
 
-<div class="menu">
+<div class="sidebar">
 <a href="index.html">Home</a>
 <a href="mybets.html">Mine Bets</a>
 <a href="profile.html">Profil</a>
 </div>
-</nav>
 
-<div class="container" id="matches"></div>
+<div class="main" id="matches"></div>
 
 <script>
 
-let points = Number(localStorage.getItem("points")) || 1000
-let bets = JSON.parse(localStorage.getItem("bets")) || []
+let points = Number(localStorage.getItem("points")) || 1000;
+let bets = JSON.parse(localStorage.getItem("bets")) || [];
 
 function save(){
-localStorage.setItem("points",points)
-localStorage.setItem("bets",JSON.stringify(bets))
+localStorage.setItem("points",points);
+localStorage.setItem("bets",JSON.stringify(bets));
+}
+
+function update(){
+document.getElementById("points").innerText = points + " pts";
 }
 
 function bet(team,id,odds){
 
-let stake = Number(prompt("Stake?"))
-if(!stake || stake<=0) return
-if(stake>points) return alert("Ikke nok points")
+let stake = Number(prompt("Stake?"));
+if(!stake || stake>points) return;
 
-points -= stake
+points -= stake;
 
 bets.push({
 id:Date.now(),
-matchId:id,
-team,
-odds,
-stake,
+team,matchId:id,odds,stake,
 potential:Math.round(stake*odds),
 status:"pending"
-})
+});
 
-save()
+save();update();
 }
 
 async function load(){
-
-const res = await fetch(
-"https://www.thesportsdb.com/api/v1/json/3/eventsnextleague.php?id=4328"
-)
-
-const data = await res.json()
-render(data.events || [])
-check(data.events || [])
+const res = await fetch("https://www.thesportsdb.com/api/v1/json/3/eventsnextleague.php?id=4328");
+const data = await res.json();
+render(data.events||[]);
+check(data.events||[]);
 }
 
 function render(matches){
 
-let html=""
+let html="";
 
-matches.slice(0,10).forEach(m=>{
-
-html += `
+matches.slice(0,12).forEach(m=>{
+html+=`
 <div class="card">
-<h2>${m.strHomeTeam} vs ${m.strAwayTeam}</h2>
+<h3>${m.strHomeTeam} vs ${m.strAwayTeam}</h3>
 <p class="small">${m.dateEvent}</p>
-<p class="live">LIVE MATCH</p>
 
-<button onclick="bet('${m.strHomeTeam}',${m.idEvent},2.1)">
-${m.strHomeTeam}
-</button>
-
-<button onclick="bet('Draw',${m.idEvent},3.2)">
-X
-</button>
-
-<button onclick="bet('${m.strAwayTeam}',${m.idEvent},2.8)">
-${m.strAwayTeam}
-</button>
+<div class="odds">
+<button onclick="bet('${m.strHomeTeam}',${m.idEvent},2.1)">${m.strHomeTeam}</button>
+<button onclick="bet('Draw',${m.idEvent},3.2)">X</button>
+<button onclick="bet('${m.strAwayTeam}',${m.idEvent},2.8)">${m.strAwayTeam}</button>
 </div>
-`
-})
+</div>`;
+});
 
-document.getElementById("matches").innerHTML = html
+document.getElementById("matches").innerHTML=html;
 }
 
 function check(matches){
-
 bets.forEach(b=>{
+if(b.status!=="pending")return;
+let m=matches.find(x=>x.idEvent==b.matchId);
+if(!m||!m.intHomeScore)return;
 
-if(b.status!=="pending") return
+let h=+m.intHomeScore,a=+m.intAwayScore;
 
-let m = matches.find(x=>x.idEvent==b.matchId)
-if(!m || !m.intHomeScore) return
+let win=
+(b.team==="Draw"&&h===a)||
+(b.team===m.strHomeTeam&&h>a)||
+(b.team===m.strAwayTeam&&a>h);
 
-let h = Number(m.intHomeScore)
-let a = Number(m.intAwayScore)
+if(win){b.status="won";points+=b.potential;}
+else b.status="lost";
 
-let win =
-(b.team==="Draw" && h===a) ||
-(b.team===m.strHomeTeam && h>a) ||
-(b.team===m.strAwayTeam && a>h)
-
-if(win){
-b.status="won"
-points += b.potential
-}else{
-b.status="lost"
+save();update();
+});
 }
 
-save()
-})
-
-}
-
-load()
-setInterval(load,60000)
-
+update();load();
+setInterval(load,60000);
 </script>
 
 </body>
