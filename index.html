@@ -3,113 +3,100 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bet uden afhængighed</title>
+<title>Sportsbook App</title>
 
 <style>
 :root{
---bg:#050505;
---card:#111;
---border:#222;
+--bg:#0b0b0b;
+--panel:#121212;
+--panel2:#161616;
+--border:#232323;
 --red:#dc2626;
+--text:#ffffff;
 --muted:#9ca3af;
 }
 
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial;}
 
-body{
-background:var(--bg);
-color:white;
-animation:fade .25s ease;
+body{background:var(--bg);color:var(--text);}
+
+.topbar{
+position:fixed;top:0;left:0;right:0;height:60px;
+display:flex;justify-content:space-between;align-items:center;
+padding:0 20px;background:#111;border-bottom:1px solid var(--border);
+z-index:1000;
 }
 
-@keyframes fade{from{opacity:0}to{opacity:1}}
-
-nav{
-position:fixed;
-top:0;
-width:100%;
-height:70px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:0 25px;
-background:rgba(10,10,10,.9);
-backdrop-filter:blur(15px);
-border-bottom:1px solid var(--border);
+.sidebar{
+position:fixed;top:60px;left:0;width:200px;height:calc(100vh - 60px);
+background:#0f0f0f;border-right:1px solid var(--border);padding:15px;
 }
 
-.logo span{color:var(--red)}
-
-.menu a{
-color:var(--muted);
-text-decoration:none;
-margin-left:15px;
+.sidebar a{
+display:block;color:var(--muted);text-decoration:none;
+padding:10px;border-radius:8px;margin-bottom:6px;
 }
 
-.menu a:hover{color:var(--red)}
+.sidebar a:hover{background:#1a1a1a;color:white;}
 
-.container{
-margin-top:110px;
-padding:20px;
-max-width:900px;
-margin-left:auto;
-margin-right:auto;
-}
+.main{margin-left:200px;margin-top:60px;padding:20px;}
 
 .card{
-background:var(--card);
+background:var(--panel);
 border:1px solid var(--border);
-padding:20px;
-border-radius:14px;
-margin-bottom:15px;
+border-radius:10px;
+padding:15px;
+margin-bottom:12px;
 }
 
 button{
 background:var(--red);
 border:none;
 color:white;
-padding:12px 18px;
-border-radius:10px;
+padding:10px 12px;
+border-radius:8px;
 cursor:pointer;
 }
 
-.small{color:var(--muted)}
+button:hover{background:#ef4444;}
+
+.small{color:var(--muted);font-size:13px}
 </style>
 </head>
 
 <body>
 
-<nav>
-<div class="logo">Bet <span>uden afhængighed</span></div>
+<div class="topbar">
+<div>⚽ Sportsbook Simulator</div>
+<div id="points">1000 pts</div>
+</div>
 
-<div class="menu">
+<div class="sidebar">
 <a href="index.html">Home</a>
 <a href="bets.html">Bets</a>
 <a href="mybets.html">Mine Bets</a>
 <a href="profile.html">Profil</a>
 </div>
-</nav>
 
-<div class="container">
+<div class="main">
 
 <div class="card">
-<h1>🎮 Betting Game</h1>
-<p class="small">Rigtige kampe • Simulerede odds • Ingen penge</p>
+<h2>Velkommen</h2>
+<p class="small">Simuleret betting (ingen rigtige penge)</p>
 </div>
 
 <div class="card">
-<p class="small">⚠️ Dette er kun et spil</p>
-</div>
-
-<div class="card">
-<button onclick="location.href='bets.html'">Start spil</button>
+<button onclick="location.href='bets.html'">Start</button>
 </div>
 
 </div>
 
 <script>
-if(!localStorage.getItem("points")) localStorage.setItem("points",1000)
-if(!localStorage.getItem("bets")) localStorage.setItem("bets","[]")
+if(!localStorage.getItem("points")) localStorage.setItem("points",1000);
+if(!localStorage.getItem("bets")) localStorage.setItem("bets","[]");
+
+document.getElementById("points").innerText =
+(localStorage.getItem("points")||1000) + " pts";
 </script>
 
 </body>
