@@ -1,4 +1,3 @@
-<!-- REPLACE ALL -->
 <!DOCTYPE html>
 <html lang="da">
 <head>
@@ -6,43 +5,41 @@
 <title>Profil</title>
 
 <style>
-body{background:#050505;color:white;font-family:Arial}
-.card{background:#111;margin:15px;padding:20px;border-radius:12px;border:1px solid #222}
+/* samme CSS */
 </style>
 </head>
 
 <body>
 
-<h1>Profil LIVE</h1>
+<div class="topbar"><div>Profil</div></div>
 
-<div class="card">
-<h2 id="points"></h2>
-<h3 id="stats"></h3>
+<div class="sidebar">
+<a href="index.html">Home</a>
+<a href="bets.html">Bets</a>
+<a href="mybets.html">Mine Bets</a>
 </div>
+
+<div class="main" id="stats"></div>
 
 <script>
 
-function update(){
+let bets = JSON.parse(localStorage.getItem("bets"))||[];
 
-let points = Number(localStorage.getItem("points")) || 1000
-let bets = JSON.parse(localStorage.getItem("bets")) || []
-
-let won=0,lost=0,pending=0
+let won=0,lost=0,pending=0;
 
 bets.forEach(b=>{
-if(b.status==="won") won++
-else if(b.status==="lost") lost++
-else pending++
-})
+if(b.status==="won")won++;
+else if(b.status==="lost")lost++;
+else pending++;
+});
 
-document.getElementById("points").innerText = "Points: " + points
-document.getElementById("stats").innerText =
-`Won: ${won} | Lost: ${lost} | Pending: ${pending}`
-}
-
-update()
-setInterval(update,2000)
-
+document.getElementById("stats").innerHTML=`
+<div class="card">
+<h3>Stats</h3>
+<p>Won: ${won}</p>
+<p>Lost: ${lost}</p>
+<p>Pending: ${pending}</p>
+</div>`;
 </script>
 
 </body>
