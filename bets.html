@@ -1,4 +1,4 @@
-<!-- REPLACE WHOLE FILE -->
+<!-- REPLACE ALL bets.html -->
 <!DOCTYPE html>
 <html lang="da">
 <head>
@@ -9,36 +9,17 @@
 <style>
 body{margin:0;font-family:Arial;background:#050505;color:white}
 nav{display:flex;justify-content:space-between;padding:20px;background:#0a0a0a;border-bottom:1px solid #222}
-a{color:#aaa;text-decoration:none;margin-left:20px}
-a:hover{color:#dc2626}
-
-.match{
-background:#111;
-margin:15px;
-padding:20px;
-border-radius:14px;
-border:1px solid #222;
-}
-
-button{
-background:#dc2626;
-color:white;
-border:none;
-padding:10px;
-margin:5px;
-border-radius:10px;
-cursor:pointer;
-}
+.match{background:#111;margin:15px;padding:20px;border-radius:12px;border:1px solid #222}
+button{background:#dc2626;color:white;border:none;padding:10px;margin:5px;border-radius:10px;cursor:pointer}
 button:hover{background:#ef4444}
-
-.points{color:#22c55e}
+.live{color:#22c55e}
 </style>
 </head>
 
 <body>
 
 <nav>
-<div>Bets</div>
+<div>Bets LIVE ENGINE</div>
 <div id="points"></div>
 </nav>
 
@@ -59,15 +40,33 @@ document.getElementById("points").innerText = points + " points"
 }
 
 const matches = [
-{home:"Spanien",away:"Frankrig",odds:[2.1,3.2,3.5]},
-{home:"Danmark",away:"Brasilien",odds:[4.5,3.8,1.7]},
-{home:"Argentina",away:"England",odds:[2.6,3.1,2.7]}
+{
+id:1,
+home:"Spanien",
+away:"Frankrig",
+odds:[2.1,3.2,3.5],
+result:null
+},
+{
+id:2,
+home:"Danmark",
+away:"Brasilien",
+odds:[4.5,3.8,1.7],
+result:null
+},
+{
+id:3,
+home:"Argentina",
+away:"England",
+odds:[2.6,3.1,2.7],
+result:null
+}
 ]
 
+// 🎮 BET FUNCTION
 function bet(team,odds){
 
-let stake = prompt("Stake?")
-stake = Number(stake)
+let stake = Number(prompt("Stake?"))
 
 if(!stake || stake <= 0) return
 if(stake > points) return alert("Ikke nok points")
@@ -76,6 +75,7 @@ points -= stake
 
 bets.push({
 id:Date.now(),
+matchId: Math.floor(Math.random()*3)+1,
 team,
 odds,
 stake,
@@ -89,14 +89,57 @@ update()
 alert("Bet placeret")
 }
 
-function load(){
+// ⚽ SIMULER KAMP RESULTAT
+function simulateMatches(){
 
-let html = ""
+matches.forEach(m=>{
+
+if(m.result) return
+
+let r = Math.random()
+
+if(r < 0.4) m.result = "home"
+else if(r < 0.7) m.result = "draw"
+else m.result = "away"
+
+})
+
+// check bets
+bets.forEach(b=>{
+
+if(b.status !== "pending") return
+
+let match = matches.find(m=>m.id === b.matchId)
+
+if(!match) return
+
+let win =
+(match.result === "home" && b.team === match.home) ||
+(match.result === "away" && b.team === match.away) ||
+(match.result === "draw" && b.team === "Uafgjort")
+
+if(win){
+b.status = "won"
+points += b.potential
+}else{
+b.status = "lost"
+}
+
+})
+
+save()
+}
+
+// render
+function render(){
+
+let html=""
 
 matches.forEach(m=>{
 html += `
 <div class="match">
 <h2>${m.home} vs ${m.away}</h2>
+<p class="live">Result: ${m.result || "LIVE..."}</p>
 
 <button onclick="bet('${m.home}',${m.odds[0]})">${m.home} ${m.odds[0]}</button>
 <button onclick="bet('Uafgjort',${m.odds[1]})">U ${m.odds[1]}</button>
@@ -108,8 +151,15 @@ html += `
 document.getElementById("matches").innerHTML = html
 }
 
+// LOOP = LIVE ENGINE
+function loop(){
+simulateMatches()
+render()
 update()
-load()
+}
+
+loop()
+setInterval(loop,5000)
 
 </script>
 
