@@ -4,7 +4,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>VM Predictor</title>
 
 <style>
@@ -13,7 +12,7 @@
 margin:0;
 padding:0;
 box-sizing:border-box;
-font-family:Arial;
+font-family:Arial,sans-serif;
 }
 
 body{
@@ -21,13 +20,15 @@ background:#0f172a;
 color:white;
 }
 
-.header{
-padding:25px;
+header{
+background:#111827;
+padding:20px;
 display:flex;
 justify-content:space-between;
 align-items:center;
-background:#111827;
 border-bottom:1px solid #1f2937;
+position:sticky;
+top:0;
 }
 
 .logo{
@@ -35,20 +36,25 @@ font-size:28px;
 font-weight:bold;
 }
 
-.points{
+.balance{
 background:#16a34a;
 padding:10px 15px;
-border-radius:10px;
+border-radius:12px;
 font-weight:bold;
 }
 
 .container{
 max-width:1200px;
 margin:auto;
-padding:30px;
+padding:25px;
 }
 
-.card{
+.section-title{
+margin-bottom:20px;
+font-size:24px;
+}
+
+.match{
 background:#1e293b;
 padding:25px;
 border-radius:18px;
@@ -58,41 +64,44 @@ margin-bottom:20px;
 .teams{
 font-size:24px;
 font-weight:bold;
+margin-bottom:15px;
+}
+
+.time{
+color:#94a3b8;
 margin-bottom:20px;
 }
 
 .odds{
 display:flex;
 gap:10px;
+flex-wrap:wrap;
 }
 
-.betBtn{
+.odds button{
 flex:1;
 padding:14px;
 border:none;
 border-radius:12px;
 cursor:pointer;
-font-size:18px;
-font-weight:bold;
 background:#2563eb;
 color:white;
+font-size:18px;
+font-weight:bold;
 }
 
-.betBtn:hover{
+.odds button:hover{
 opacity:.9;
 }
 
-.leaderboard{
-margin-top:40px;
+.nav{
+display:flex;
+gap:15px;
 }
 
-.player{
-background:#111827;
-padding:15px;
-border-radius:10px;
-margin-bottom:10px;
-display:flex;
-justify-content:space-between;
+.nav a{
+color:white;
+text-decoration:none;
 }
 
 .popup{
@@ -103,6 +112,7 @@ background:#16a34a;
 padding:15px;
 border-radius:12px;
 display:none;
+font-weight:bold;
 }
 
 </style>
@@ -111,88 +121,30 @@ display:none;
 
 <body>
 
-<div class="header">
+<header>
 
 <div class="logo">
 ⚽ VM Predictor
 </div>
 
-<div class="points" id="points">
-1000 Points
+<div class="nav">
+<a href="index.html">Kampe</a>
+<a href="mybets.html">Mine Bets</a>
 </div>
 
+<div class="balance" id="balance">
+1000 Point
 </div>
+
+</header>
 
 <div class="container">
 
-<div class="card">
+<h2 class="section-title">
+🔥 VM Kampe
+</h2>
 
-<div class="teams">
-🇪🇸 Spanien vs 🇫🇷 Frankrig
-</div>
-
-<div class="odds">
-
-<button class="betBtn" onclick="bet('Spanien',2.1)">
-Spanien 2.10
-</button>
-
-<button class="betBtn" onclick="bet('Draw',3.2)">
-Uafgjort 3.20
-</button>
-
-<button class="betBtn" onclick="bet('Frankrig',3.5)">
-Frankrig 3.50
-</button>
-
-</div>
-
-</div>
-
-<div class="card">
-
-<div class="teams">
-🇩🇰 Danmark vs 🇧🇷 Brasilien
-</div>
-
-<div class="odds">
-
-<button class="betBtn" onclick="bet('Danmark',4.5)">
-Danmark 4.50
-</button>
-
-<button class="betBtn" onclick="bet('Draw',3.8)">
-Uafgjort 3.80
-</button>
-
-<button class="betBtn" onclick="bet('Brasilien',1.7)">
-Brasilien 1.70
-</button>
-
-</div>
-
-</div>
-
-<div class="leaderboard">
-
-<h2>🏆 Leaderboard</h2>
-
-<div class="player">
-<span>Jonas</span>
-<span>4200</span>
-</div>
-
-<div class="player">
-<span>Emma</span>
-<span>3800</span>
-</div>
-
-<div class="player">
-<span>Mads</span>
-<span>3100</span>
-</div>
-
-</div>
+<div id="matches"></div>
 
 </div>
 
@@ -202,25 +154,101 @@ Bet placeret ✔
 
 <script>
 
-let points =
-Number(localStorage.getItem("points")) || 1000;
+const matches = [
 
-updatePoints();
+{
+id:1,
+home:"🇪🇸 Spanien",
+away:"🇫🇷 Frankrig",
+odds:{
+home:2.10,
+draw:3.20,
+away:3.50
+}
+},
 
-function updatePoints(){
-document.getElementById("points").innerText =
-points + " Points";
+{
+id:2,
+home:"🇩🇰 Danmark",
+away:"🇧🇷 Brasilien",
+odds:{
+home:4.50,
+draw:3.80,
+away:1.70
+}
+},
+
+{
+id:3,
+home:"🇦🇷 Argentina",
+away:"🏴 England",
+odds:{
+home:2.60,
+draw:3.10,
+away:2.70
+}
+},
+
+{
+id:4,
+home:"🇩🇪 Tyskland",
+away:"🇵🇹 Portugal",
+odds:{
+home:2.20,
+draw:3.40,
+away:3.10
+}
 }
 
-function bet(team,odds){
+];
 
-let stake = Number(prompt("Hvor mange point?"));
+let points =
+Number(localStorage.getItem("points"));
+
+if(!points){
+points = 1000;
+localStorage.setItem("points",1000);
+}
+
+updateBalance();
+
+function updateBalance(){
+
+document.getElementById("balance").innerText =
+points + " Point";
+
+}
+
+function getBets(){
+
+return JSON.parse(
+localStorage.getItem("bets")
+) || [];
+
+}
+
+function saveBets(bets){
+
+localStorage.setItem(
+"bets",
+JSON.stringify(bets)
+);
+
+}
+
+function placeBet(matchId,team,odds){
+
+let stake =
+Number(prompt("Hvor mange point vil du satse?"));
 
 if(!stake) return;
 
 if(stake > points){
+
 alert("Ikke nok point");
+
 return;
+
 }
 
 points -= stake;
@@ -230,32 +258,122 @@ localStorage.setItem(
 points
 );
 
-updatePoints();
+updateBalance();
 
-let bets =
-JSON.parse(
-localStorage.getItem("bets")
-) || [];
+let bets = getBets();
 
 bets.push({
+
+id:Date.now(),
+
+matchId,
+
 team,
+
 stake,
+
 odds,
-status:"pending"
+
+potentialWin:
+Math.round(stake * odds),
+
+status:"pending",
+
+date:new Date().toLocaleString()
+
 });
 
-localStorage.setItem(
-"bets",
-JSON.stringify(bets)
-);
+saveBets(bets);
 
-document.getElementById("popup").style.display="block";
+showPopup();
+
+}
+
+function showPopup(){
+
+const p =
+document.getElementById("popup");
+
+p.style.display="block";
 
 setTimeout(()=>{
-document.getElementById("popup").style.display="none";
+
+p.style.display="none";
+
 },2000);
 
 }
+
+function renderMatches(){
+
+const container =
+document.getElementById("matches");
+
+container.innerHTML="";
+
+matches.forEach(match=>{
+
+container.innerHTML += `
+
+<div class="match">
+
+<div class="teams">
+
+${match.home}
+vs
+${match.away}
+
+</div>
+
+<div class="time">
+
+VM 2026
+
+</div>
+
+<div class="odds">
+
+<button onclick="placeBet(
+${match.id},
+'${match.home}',
+${match.odds.home}
+)">
+${match.home}
+<br>
+${match.odds.home}
+</button>
+
+<button onclick="placeBet(
+${match.id},
+'Uafgjort',
+${match.odds.draw}
+)">
+Uafgjort
+<br>
+${match.odds.draw}
+</button>
+
+<button onclick="placeBet(
+${match.id},
+'${match.away}',
+${match.odds.away}
+)">
+${match.away}
+<br>
+${match.odds.away}
+</button>
+
+</div>
+
+</div>
+
+`;
+
+});
+
+}
+
+renderMatches();
 
 </script>
 
