@@ -1,27 +1,32 @@
-<!-- REPLACE WHOLE FILE -->
+<!-- REPLACE ALL -->
 <!DOCTYPE html>
 <html lang="da">
 <head>
 <meta charset="UTF-8">
 <title>Mine Bets</title>
+
 <style>
 body{background:#050505;color:white;font-family:Arial}
 .card{background:#111;margin:15px;padding:20px;border-radius:12px;border:1px solid #222}
+.won{color:#22c55e}
+.lost{color:#ef4444}
 .pending{color:#facc15}
 </style>
 </head>
 
 <body>
 
-<h1>Mine Bets</h1>
+<h1>Mine Bets (LIVE)</h1>
 
 <div id="bets"></div>
 
 <script>
 
+function load(){
+
 let bets = JSON.parse(localStorage.getItem("bets")) || []
 
-let html = ""
+let html=""
 
 bets.forEach(b=>{
 
@@ -37,6 +42,10 @@ html += `
 })
 
 document.getElementById("bets").innerHTML = html
+}
+
+load()
+setInterval(load,2000)
 
 </script>
 
