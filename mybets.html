@@ -1,1 +1,311 @@
+<!DOCTYPE html>
 
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Mine Bets - Bet uden afhængighed</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Inter,sans-serif;
+}
+
+body{
+background:#050505;
+color:white;
+min-height:100vh;
+}
+
+nav{
+height:80px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:0 40px;
+border-bottom:1px solid rgba(255,255,255,.05);
+background:#050505;
+}
+
+.logo{
+font-size:24px;
+font-weight:700;
+}
+
+.logo span{
+color:#dc2626;
+}
+
+.menu{
+display:flex;
+gap:20px;
+}
+
+.menu a{
+text-decoration:none;
+color:white;
+opacity:.8;
+}
+
+.menu a:hover{
+color:#dc2626;
+}
+
+.points{
+background:#111;
+padding:12px 18px;
+border-radius:12px;
+border:1px solid #222;
+}
+
+.container{
+max-width:1200px;
+margin:auto;
+padding:40px 20px;
+}
+
+.title{
+font-size:42px;
+margin-bottom:10px;
+}
+
+.subtitle{
+color:#9ca3af;
+margin-bottom:40px;
+}
+
+.bets{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(350px,1fr));
+gap:20px;
+}
+
+.bet{
+background:#111;
+border:1px solid #222;
+border-radius:22px;
+padding:25px;
+}
+
+.bet h3{
+margin-bottom:15px;
+font-size:24px;
+}
+
+.row{
+display:flex;
+justify-content:space-between;
+margin-bottom:12px;
+}
+
+.label{
+color:#9ca3af;
+}
+
+.value{
+font-weight:600;
+}
+
+.pending{
+color:#facc15;
+}
+
+.won{
+color:#22c55e;
+}
+
+.lost{
+color:#ef4444;
+}
+
+.empty{
+text-align:center;
+padding:100px 20px;
+background:#111;
+border-radius:24px;
+border:1px solid #222;
+}
+
+.empty h2{
+margin-bottom:15px;
+}
+
+.empty p{
+color:#9ca3af;
+margin-bottom:25px;
+}
+
+.btn{
+padding:14px 22px;
+background:#dc2626;
+border:none;
+color:white;
+border-radius:12px;
+cursor:pointer;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<nav>
+
+<div class="logo">
+Bet <span>uden afhængighed</span>
+</div>
+
+<div class="menu">
+<a href="index.html">Forside</a>
+<a href="bets.html">Læg Bets</a>
+<a href="leaderboard.html">Leaderboard</a>
+<a href="profile.html">Profil</a>
+</div>
+
+<div class="points" id="points">
+1000 Point
+</div>
+
+</nav>
+
+<div class="container">
+
+<h1 class="title">Mine Bets</h1>
+<p class="subtitle">
+Alle dine aktive og tidligere bets.
+</p>
+
+<div class="bets" id="bets"></div>
+
+</div>
+
+<script>
+
+let points =
+Number(
+localStorage.getItem("points")
+) || 1000;
+
+document
+.getElementById("points")
+.innerText =
+points + " Point";
+
+let bets =
+JSON.parse(
+localStorage.getItem("bets")
+) || [];
+
+const container =
+document.getElementById("bets");
+
+if(bets.length === 0){
+
+container.innerHTML = `
+
+<div class="empty">
+
+<h2>
+Ingen bets endnu
+</h2>
+
+<p>
+Du har ikke placeret nogen bets.
+</p>
+
+<button
+class="btn"
+onclick="location.href='bets.html'"
+>
+
+Læg dit første bet
+
+</button>
+
+</div>
+
+`;
+
+}else{
+
+bets.reverse().forEach(bet=>{
+
+let statusClass =
+bet.status;
+
+container.innerHTML += `
+
+<div class="bet">
+
+<h3>
+${bet.team}
+</h3>
+
+<div class="row">
+<span class="label">
+Indsats
+</span>
+
+<span class="value">
+${bet.stake} Point
+</span>
+</div>
+
+<div class="row">
+<span class="label">
+Odds
+</span>
+
+<span class="value">
+${bet.odds}
+</span>
+</div>
+
+<div class="row">
+<span class="label">
+Potentiel gevinst
+</span>
+
+<span class="value">
+${bet.potential}
+</span>
+</div>
+
+<div class="row">
+<span class="label">
+Dato
+</span>
+
+<span class="value">
+${bet.created}
+</span>
+</div>
+
+<div class="row">
+<span class="label">
+Status
+</span>
+
+<span class="${statusClass}">
+${bet.status}
+</span>
+</div>
+
+</div>
+
+`;
+
+});
+
+}
+
+</script>
+
+</body>
+</html>
