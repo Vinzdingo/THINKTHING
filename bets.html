@@ -5,52 +5,65 @@
 <title>Bets</title>
 
 <style>
-:root{
---bg:#0b0b0b;--panel:#121212;--border:#232323;
---red:#dc2626;--text:#fff;--muted:#9ca3af;
+body{
+margin:0;
+font-family:Arial;
+background:#0b0b0b;
+color:white;
+text-align:center;
 }
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial;}
-body{background:var(--bg);color:var(--text);}
 
-.topbar{position:fixed;top:0;left:0;right:0;height:60px;
-display:flex;justify-content:space-between;align-items:center;
-padding:0 20px;background:#111;border-bottom:1px solid var(--border);}
+nav{
+padding:20px;
+border-bottom:1px solid #222;
+}
 
-.sidebar{position:fixed;top:60px;left:0;width:200px;height:calc(100vh - 60px);
-background:#0f0f0f;border-right:1px solid var(--border);padding:15px;}
+nav a{
+color:#aaa;
+margin:0 10px;
+text-decoration:none;
+}
 
-.sidebar a{display:block;color:var(--muted);text-decoration:none;padding:10px;border-radius:8px;margin-bottom:6px;}
-.sidebar a:hover{background:#1a1a1a;color:white;}
+.card{
+background:#121212;
+margin:15px auto;
+padding:15px;
+max-width:600px;
+border-radius:10px;
+border:1px solid #222;
+}
 
-.main{margin-left:200px;margin-top:60px;padding:20px;}
+button{
+padding:10px;
+margin:5px;
+background:#222;
+border:1px solid #333;
+color:white;
+border-radius:8px;
+cursor:pointer;
+}
 
-.card{background:var(--panel);border:1px solid var(--border);padding:15px;border-radius:10px;margin-bottom:12px;}
+button:hover{background:#dc2626}
 
-button{background:var(--red);border:none;color:white;padding:10px 12px;border-radius:8px;cursor:pointer;}
-button:hover{background:#ef4444;}
-
-.small{color:var(--muted);font-size:13px}
-
-.odds{display:flex;gap:8px;margin-top:10px;}
-.odds button{background:#222;border:1px solid #333;}
-.odds button:hover{background:var(--red);}
+.points{
+color:#dc2626;
+margin-top:10px;
+}
 </style>
 </head>
 
 <body>
 
-<div class="topbar">
-<div>Bets</div>
-<div id="points"></div>
-</div>
-
-<div class="sidebar">
+<nav>
 <a href="index.html">Home</a>
 <a href="mybets.html">Mine Bets</a>
 <a href="profile.html">Profil</a>
-</div>
+</nav>
 
-<div class="main" id="matches"></div>
+<h2>Matches</h2>
+<div class="points" id="points"></div>
+
+<div id="matches"></div>
 
 <script>
 
@@ -62,8 +75,29 @@ localStorage.setItem("points",points);
 localStorage.setItem("bets",JSON.stringify(bets));
 }
 
-function update(){
-document.getElementById("points").innerText = points + " pts";
+document.getElementById("points").innerText = points + " points";
+
+async function load(){
+
+const res = await fetch("https://www.thesportsdb.com/api/v1/json/3/eventsnextleague.php?id=4328");
+const data = await res.json();
+
+let html="";
+
+(data.events||[]).slice(0,10).forEach(m=>{
+
+html+=`
+<div class="card">
+<h3>${m.strHomeTeam} vs ${m.strAwayTeam}</h3>
+<p>${m.dateEvent}</p>
+
+<button onclick="bet('${m.strHomeTeam}',${m.idEvent},2)">Home</button>
+<button onclick="bet('Draw',${m.idEvent},3)">X</button>
+<button onclick="bet('${m.strAwayTeam}',${m.idEvent},2.5)">Away</button>
+</div>`;
+});
+
+document.getElementById("matches").innerHTML=html;
 }
 
 function bet(team,id,odds){
@@ -75,64 +109,19 @@ points -= stake;
 
 bets.push({
 id:Date.now(),
-team,matchId:id,odds,stake,
-potential:Math.round(stake*odds),
+team,
+matchId:id,
+odds,
+stake,
 status:"pending"
 });
 
-save();update();
+save();
+document.getElementById("points").innerText = points;
 }
 
-async function load(){
-const res = await fetch("https://www.thesportsdb.com/api/v1/json/3/eventsnextleague.php?id=4328");
-const data = await res.json();
-render(data.events||[]);
-check(data.events||[]);
-}
+load();
 
-function render(matches){
-
-let html="";
-
-matches.slice(0,12).forEach(m=>{
-html+=`
-<div class="card">
-<h3>${m.strHomeTeam} vs ${m.strAwayTeam}</h3>
-<p class="small">${m.dateEvent}</p>
-
-<div class="odds">
-<button onclick="bet('${m.strHomeTeam}',${m.idEvent},2.1)">${m.strHomeTeam}</button>
-<button onclick="bet('Draw',${m.idEvent},3.2)">X</button>
-<button onclick="bet('${m.strAwayTeam}',${m.idEvent},2.8)">${m.strAwayTeam}</button>
-</div>
-</div>`;
-});
-
-document.getElementById("matches").innerHTML=html;
-}
-
-function check(matches){
-bets.forEach(b=>{
-if(b.status!=="pending")return;
-let m=matches.find(x=>x.idEvent==b.matchId);
-if(!m||!m.intHomeScore)return;
-
-let h=+m.intHomeScore,a=+m.intAwayScore;
-
-let win=
-(b.team==="Draw"&&h===a)||
-(b.team===m.strHomeTeam&&h>a)||
-(b.team===m.strAwayTeam&&a>h);
-
-if(win){b.status="won";points+=b.potential;}
-else b.status="lost";
-
-save();update();
-});
-}
-
-update();load();
-setInterval(load,60000);
 </script>
 
 </body>
