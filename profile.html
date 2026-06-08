@@ -5,25 +5,34 @@
 <title>Profil</title>
 
 <style>
-/* samme CSS */
+body{
+margin:0;
+font-family:Arial;
+background:#0b0b0b;
+color:white;
+text-align:center;
+}
+
+.card{
+background:#121212;
+margin:20px auto;
+padding:20px;
+max-width:400px;
+border-radius:10px;
+border:1px solid #222;
+}
 </style>
 </head>
 
 <body>
 
-<div class="topbar"><div>Profil</div></div>
+<h2>Profil</h2>
 
-<div class="sidebar">
-<a href="index.html">Home</a>
-<a href="bets.html">Bets</a>
-<a href="mybets.html">Mine Bets</a>
-</div>
-
-<div class="main" id="stats"></div>
+<div class="card" id="stats"></div>
 
 <script>
 
-let bets = JSON.parse(localStorage.getItem("bets"))||[];
+let bets = JSON.parse(localStorage.getItem("bets")) || [];
 
 let won=0,lost=0,pending=0;
 
@@ -34,12 +43,12 @@ else pending++;
 });
 
 document.getElementById("stats").innerHTML=`
-<div class="card">
-<h3>Stats</h3>
 <p>Won: ${won}</p>
 <p>Lost: ${lost}</p>
 <p>Pending: ${pending}</p>
-</div>`;
+<p>Total: ${bets.length}</p>
+`;
+
 </script>
 
 </body>
