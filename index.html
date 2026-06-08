@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>VM Predictor</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial;
+}
+
+body{
+background:#0f172a;
+color:white;
+}
+
+.header{
+padding:25px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+background:#111827;
+border-bottom:1px solid #1f2937;
+}
+
+.logo{
+font-size:28px;
+font-weight:bold;
+}
+
+.points{
+background:#16a34a;
+padding:10px 15px;
+border-radius:10px;
+font-weight:bold;
+}
+
+.container{
+max-width:1200px;
+margin:auto;
+padding:30px;
+}
+
+.card{
+background:#1e293b;
+padding:25px;
+border-radius:18px;
+margin-bottom:20px;
+}
+
+.teams{
+font-size:24px;
+font-weight:bold;
+margin-bottom:20px;
+}
+
+.odds{
+display:flex;
+gap:10px;
+}
+
+.betBtn{
+flex:1;
+padding:14px;
+border:none;
+border-radius:12px;
+cursor:pointer;
+font-size:18px;
+font-weight:bold;
+background:#2563eb;
+color:white;
+}
+
+.betBtn:hover{
+opacity:.9;
+}
+
+.leaderboard{
+margin-top:40px;
+}
+
+.player{
+background:#111827;
+padding:15px;
+border-radius:10px;
+margin-bottom:10px;
+display:flex;
+justify-content:space-between;
+}
+
+.popup{
+position:fixed;
+bottom:20px;
+right:20px;
+background:#16a34a;
+padding:15px;
+border-radius:12px;
+display:none;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+
+<div class="logo">
+⚽ VM Predictor
+</div>
+
+<div class="points" id="points">
+1000 Points
+</div>
+
+</div>
+
+<div class="container">
+
+<div class="card">
+
+<div class="teams">
+🇪🇸 Spanien vs 🇫🇷 Frankrig
+</div>
+
+<div class="odds">
+
+<button class="betBtn" onclick="bet('Spanien',2.1)">
+Spanien 2.10
+</button>
+
+<button class="betBtn" onclick="bet('Draw',3.2)">
+Uafgjort 3.20
+</button>
+
+<button class="betBtn" onclick="bet('Frankrig',3.5)">
+Frankrig 3.50
+</button>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="teams">
+🇩🇰 Danmark vs 🇧🇷 Brasilien
+</div>
+
+<div class="odds">
+
+<button class="betBtn" onclick="bet('Danmark',4.5)">
+Danmark 4.50
+</button>
+
+<button class="betBtn" onclick="bet('Draw',3.8)">
+Uafgjort 3.80
+</button>
+
+<button class="betBtn" onclick="bet('Brasilien',1.7)">
+Brasilien 1.70
+</button>
+
+</div>
+
+</div>
+
+<div class="leaderboard">
+
+<h2>🏆 Leaderboard</h2>
+
+<div class="player">
+<span>Jonas</span>
+<span>4200</span>
+</div>
+
+<div class="player">
+<span>Emma</span>
+<span>3800</span>
+</div>
+
+<div class="player">
+<span>Mads</span>
+<span>3100</span>
+</div>
+
+</div>
+
+</div>
+
+<div class="popup" id="popup">
+Bet placeret ✔
+</div>
+
+<script>
+
+let points =
+Number(localStorage.getItem("points")) || 1000;
+
+updatePoints();
+
+function updatePoints(){
+document.getElementById("points").innerText =
+points + " Points";
+}
+
+function bet(team,odds){
+
+let stake = Number(prompt("Hvor mange point?"));
+
+if(!stake) return;
+
+if(stake > points){
+alert("Ikke nok point");
+return;
+}
+
+points -= stake;
+
+localStorage.setItem(
+"points",
+points
+);
+
+updatePoints();
+
+let bets =
+JSON.parse(
+localStorage.getItem("bets")
+) || [];
+
+bets.push({
+team,
+stake,
+odds,
+status:"pending"
+});
+
+localStorage.setItem(
+"bets",
+JSON.stringify(bets)
+);
+
+document.getElementById("popup").style.display="block";
+
+setTimeout(()=>{
+document.getElementById("popup").style.display="none";
+},2000);
+
+}
+
+</script>
+
+</body>
+</html>
