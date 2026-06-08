@@ -1,31 +1,47 @@
-
+<!-- REPLACE ALL -->
 <!DOCTYPE html>
 <html lang="da">
 <head>
 <meta charset="UTF-8">
 <title>Profil</title>
+
 <style>
 body{background:#050505;color:white;font-family:Arial}
-.card{background:#111;padding:20px;margin:15px;border-radius:12px}
+.card{background:#111;margin:15px;padding:20px;border-radius:12px;border:1px solid #222}
 </style>
 </head>
 
 <body>
 
-<h1>Profil</h1>
+<h1>Profil LIVE</h1>
 
 <div class="card">
 <h2 id="points"></h2>
-<h3 id="bets"></h3>
+<h3 id="stats"></h3>
 </div>
 
 <script>
 
+function update(){
+
 let points = Number(localStorage.getItem("points")) || 1000
 let bets = JSON.parse(localStorage.getItem("bets")) || []
 
+let won=0,lost=0,pending=0
+
+bets.forEach(b=>{
+if(b.status==="won") won++
+else if(b.status==="lost") lost++
+else pending++
+})
+
 document.getElementById("points").innerText = "Points: " + points
-document.getElementById("bets").innerText = "Bets: " + bets.length
+document.getElementById("stats").innerText =
+`Won: ${won} | Lost: ${lost} | Pending: ${pending}`
+}
+
+update()
+setInterval(update,2000)
 
 </script>
 
