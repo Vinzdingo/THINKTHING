@@ -2,7 +2,6 @@
 <html lang="da">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bets</title>
 
 <style>
@@ -12,11 +11,11 @@ nav{
 position:fixed;
 top:0;
 width:100%;
-height:80px;
+height:70px;
 display:flex;
 justify-content:space-between;
 align-items:center;
-padding:0 40px;
+padding:0 25px;
 background:#0a0a0a;
 border-bottom:1px solid #222;
 }
@@ -29,12 +28,18 @@ text-decoration:none;
 
 .menu a:hover{color:#dc2626}
 
-.container{margin-top:110px;padding:20px}
+.container{
+margin-top:100px;
+padding:20px;
+max-width:1000px;
+margin-left:auto;
+margin-right:auto;
+}
 
 .card{
 background:#111;
 border:1px solid #222;
-padding:20px;
+padding:18px;
 border-radius:14px;
 margin-bottom:15px;
 }
@@ -42,17 +47,17 @@ margin-bottom:15px;
 button{
 background:#dc2626;
 border:none;
+padding:10px 14px;
 color:white;
-padding:10px;
-margin:5px;
 border-radius:10px;
+margin:5px;
 cursor:pointer;
 }
 
 button:hover{background:#ef4444}
 
+.small{color:#9ca3af;font-size:13px}
 .live{color:#22c55e}
-.small{color:#999;font-size:13px}
 </style>
 </head>
 
@@ -80,10 +85,9 @@ localStorage.setItem("points",points)
 localStorage.setItem("bets",JSON.stringify(bets))
 }
 
-function bet(team,matchId,odds){
+function bet(team,id,odds){
 
 let stake = Number(prompt("Stake?"))
-
 if(!stake || stake<=0) return
 if(stake>points) return alert("Ikke nok points")
 
@@ -91,7 +95,7 @@ points -= stake
 
 bets.push({
 id:Date.now(),
-matchId,
+matchId:id,
 team,
 odds,
 stake,
@@ -102,7 +106,6 @@ status:"pending"
 save()
 }
 
-// ⚽ REAL API (STABLE)
 async function load(){
 
 const res = await fetch(
@@ -110,7 +113,6 @@ const res = await fetch(
 )
 
 const data = await res.json()
-
 render(data.events || [])
 check(data.events || [])
 }
@@ -119,17 +121,25 @@ function render(matches){
 
 let html=""
 
-matches.slice(0,8).forEach(m=>{
+matches.slice(0,10).forEach(m=>{
 
 html += `
 <div class="card">
-<h3>${m.strHomeTeam} vs ${m.strAwayTeam}</h3>
+<h2>${m.strHomeTeam} vs ${m.strAwayTeam}</h2>
 <p class="small">${m.dateEvent}</p>
-<p class="live">LIVE DATA</p>
+<p class="live">LIVE MATCH</p>
 
-<button onclick="bet('${m.strHomeTeam}',${m.idEvent},2.1)">${m.strHomeTeam}</button>
-<button onclick="bet('Uafgjort',${m.idEvent},3.2)">U</button>
-<button onclick="bet('${m.strAwayTeam}',${m.idEvent},2.8)">${m.strAwayTeam}</button>
+<button onclick="bet('${m.strHomeTeam}',${m.idEvent},2.1)">
+${m.strHomeTeam}
+</button>
+
+<button onclick="bet('Draw',${m.idEvent},3.2)">
+X
+</button>
+
+<button onclick="bet('${m.strAwayTeam}',${m.idEvent},2.8)">
+${m.strAwayTeam}
+</button>
 </div>
 `
 })
@@ -137,7 +147,6 @@ html += `
 document.getElementById("matches").innerHTML = html
 }
 
-// auto payout (enkelt)
 function check(matches){
 
 bets.forEach(b=>{
@@ -151,7 +160,7 @@ let h = Number(m.intHomeScore)
 let a = Number(m.intAwayScore)
 
 let win =
-(b.team==="Uafgjort" && h===a) ||
+(b.team==="Draw" && h===a) ||
 (b.team===m.strHomeTeam && h>a) ||
 (b.team===m.strAwayTeam && a>h)
 
