@@ -11,28 +11,36 @@ nav{
 position:fixed;
 top:0;
 width:100%;
-height:80px;
+height:70px;
 display:flex;
 justify-content:space-between;
 align-items:center;
-padding:0 40px;
+padding:0 25px;
 background:#0a0a0a;
 border-bottom:1px solid #222;
 }
 
-.container{margin-top:110px;padding:20px}
+.container{
+margin-top:100px;
+padding:20px;
+max-width:900px;
+margin-left:auto;
+margin-right:auto;
+}
 
 .card{
 background:#111;
 border:1px solid #222;
-padding:20px;
+padding:18px;
 border-radius:14px;
 margin-bottom:15px;
 }
 
-.pending{color:#facc15}
 .won{color:#22c55e}
 .lost{color:#ef4444}
+.pending{color:#facc15}
+
+.small{color:#9ca3af}
 </style>
 </head>
 
@@ -57,13 +65,18 @@ function load(){
 let bets = JSON.parse(localStorage.getItem("bets")) || []
 let html=""
 
-bets.reverse().forEach(b=>{
+if(bets.length===0){
+document.getElementById("bets").innerHTML="Ingen bets endnu"
+return
+}
+
+bets.slice().reverse().forEach(b=>{
 
 html += `
 <div class="card">
 <h3>${b.team}</h3>
-<p>Stake: ${b.stake}</p>
-<p>Odds: ${b.odds}</p>
+<p class="small">Stake: ${b.stake}</p>
+<p class="small">Odds: ${b.odds}</p>
 <p class="${b.status}">${b.status}</p>
 </div>
 `
