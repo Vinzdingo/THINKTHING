@@ -1,4 +1,3 @@
-<!-- REPLACE ALL -->
 <!DOCTYPE html>
 <html lang="da">
 <head>
@@ -6,42 +5,71 @@
 <title>Mine Bets</title>
 
 <style>
-body{background:#050505;color:white;font-family:Arial}
-.card{background:#111;margin:15px;padding:20px;border-radius:12px;border:1px solid #222}
+body{margin:0;background:#050505;color:white;font-family:Arial}
+
+nav{
+position:fixed;
+top:0;
+width:100%;
+height:80px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:0 40px;
+background:#0a0a0a;
+border-bottom:1px solid #222;
+}
+
+.container{margin-top:110px;padding:20px}
+
+.card{
+background:#111;
+border:1px solid #222;
+padding:20px;
+border-radius:14px;
+margin-bottom:15px;
+}
+
+.pending{color:#facc15}
 .won{color:#22c55e}
 .lost{color:#ef4444}
-.pending{color:#facc15}
 </style>
 </head>
 
 <body>
 
-<h1>Mine Bets (LIVE)</h1>
+<nav>
+<div>Mine Bets</div>
 
-<div id="bets"></div>
+<div class="menu">
+<a href="index.html">Home</a>
+<a href="bets.html">Bets</a>
+<a href="profile.html">Profil</a>
+</div>
+</nav>
+
+<div class="container" id="bets"></div>
 
 <script>
 
 function load(){
 
 let bets = JSON.parse(localStorage.getItem("bets")) || []
-
 let html=""
 
-bets.forEach(b=>{
+bets.reverse().forEach(b=>{
 
 html += `
 <div class="card">
 <h3>${b.team}</h3>
 <p>Stake: ${b.stake}</p>
 <p>Odds: ${b.odds}</p>
-<p class="${b.status}">Status: ${b.status}</p>
+<p class="${b.status}">${b.status}</p>
 </div>
 `
-
 })
 
-document.getElementById("bets").innerHTML = html
+document.getElementById("bets").innerHTML=html
 }
 
 load()
